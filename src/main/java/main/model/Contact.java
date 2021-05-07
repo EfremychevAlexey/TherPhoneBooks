@@ -2,17 +2,17 @@ package main.model;
 
 import javax.persistence.*;
 
-//@Entity
-//@Table(name = "Contacts")
+@Table(name = "contacts")
 public class Contact
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int contactId;
-
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
     private String name;
     private String phone;
-    private PhoneBook phoneBook;
+    @ManyToOne()
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Contact(String name, String phone){
         this.name = name;
@@ -20,11 +20,11 @@ public class Contact
     }
 
     public int getId(){
-        return contactId;
+        return id;
     }
 
     public void setId(int id) {
-        contactId = id;
+        this.id = id;
     }
 
     public String getName() {
@@ -41,9 +41,5 @@ public class Contact
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public void setPhoneBookId(PhoneBook phoneBook){
-        this.phoneBook = phoneBook;
     }
 }
