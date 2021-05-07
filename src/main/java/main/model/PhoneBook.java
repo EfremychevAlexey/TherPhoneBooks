@@ -1,64 +1,73 @@
 package main.model;
-import javax.persistence.*;
-import java.util.*;
 
-//@Entity
-//@Table(name = "Users")
+import javax.persistence.Entity;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Entity
 public class PhoneBook {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+    private int id;
     private String name;
-    private TreeSet<Contact> phoneBook;
+    private User user;
+    private Date dateCreation;
+    private Date lastEntry;
+    private Map<Integer, Contact> contacts;
+    private Map<Integer, Contact> basket;
 
-    public PhoneBook(String name){
-        this.name = name;
-        phoneBook = new TreeSet<>(Comparator.comparing(Contact::getName));
+    public PhoneBook(User user){
+        this.id = user.getId();
+        name = "Owner:" + user.getName();
+        this.user = user;
+        dateCreation = new Date();
+        contacts = new HashMap<>();
+        basket = new HashMap<>();
     }
 
-    public int getId() {
-        return userId;
-    }
-
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    /*public Set<Contact> list() {
-        return phoneBook;
-    }*/
+    public User getUser() {
+        return user;
+    }
 
-    /*public List<Contact> list(String str) {
-        ArrayList<Contact> list = new ArrayList<>();
-        for (Contact e : phoneBook) {
-            if (e.getName().contains(str) || e.getPhone().contains(str)) {
-                list.add(e);
-            }
+    public Date getDateCreation() {
+        return dateCreation;
+    }
+    public Date getLastEntry(){
+        return lastEntry;
+    }
+
+    // добавить новый контакт,
+    public boolean addContact(Contact contact){
+        if(!contacts.containsKey(contact.getId())) {
+            contacts.put(contact.getId(), contact);
+            lastEntry = new Date();
+            return true;
         }
+        return false;
+    }
+    // получить контакт по id
+    public Contact getContactById(int id){
+        return contacts.get(id);
+    }
+    // получить все записи
+    public List<Contact> allContacts(){
+        List<Contact> list = contacts.values().stream().
+                sorted(Comparator.comparing(Contact::getName)).
+                collect(Collectors.toList());
         return list;
-    }*/
-
-    /*public void add(Contact e){
-        phoneBook.add(e);
-        e.setPhoneBookId(getId());
-        indexingList();
-    }*/
-
-    /*public void delete(int id){
-        for (Contact e: phoneBook){
-            if (e.getId() == id) {
-                phoneBook.remove(e);
+    }
+    // удалить запись
+    public boolean delContactbyId(int id) {
+        if(contacts.containsKey(id)){
+            Contact contact = contacts.remove(id);
+            if(contact != null){
+                basket.put(contact.getId(), contact);
+                return true;
             }
         }
-        indexingList();
-    }*/
-
-    /*private void indexingList(){
-        int i = 1;
-        for (Contact e: phoneBook){
-            e.setId(i++);
-        }
-    }*/
-
+        return false;
+    }
 }

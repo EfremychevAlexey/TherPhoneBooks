@@ -1,75 +1,88 @@
-/*package main;
+package main;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import main.model.User;
+import main.model.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
 
 @RestController
-public class PhoneBookController {
+public class UserController {
+
+    @Autowired
+    private UserRepository userRepository;
+
     //получения списка всех пользователей (владельцев телефонных книжек)
-    @RequestMapping(value = "/users/", method = RequestMethod.GET)
-    //public List<User> users(){
-        return Storage.getAllUsers();
+    @GetMapping("/users")
+    public ResponseEntity users() {
+        Iterable<User> userIterable = userRepository.findAll();
+        ArrayList<User> users = new ArrayList<>();
+        for (User u : userIterable) {
+            users.add(u);
+        }
+        return (users.isEmpty()) ?
+                new ResponseEntity(users, HttpStatus.OK) :
+                new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
     //создание пользователя
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public int addUser(User user){
-        Storage.addUser(user);
-        return user.getId();
+    @PostMapping("/users")
+    public ResponseEntity add(User user) {
+        User newUser = userRepository.save(user);
+        return new ResponseEntity(newUser.getId(), HttpStatus.CREATED);
     }
- /*
+
     //получения пользователя по id
-    @RequestMapping(value = "/users/id", method = RequestMethod.GET)
-    public User user(int userId){
-        return Storage.getUser(userId);
+    @GetMapping("/users/{id}")
+    public ResponseEntity get(@PathVariable int id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity(optionalUser.get(), HttpStatus.OK);
     }
 
     // удаления пользователя по id
-    @RequestMapping(value = "/users/id", method = RequestMethod.DELETE)
-    public void deleteUser(int userId){
-        Storage.deleteUser(userId);
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity deleteUser(@PathVariable int id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return userRepository.existsById(id) ? new ResponseEntity(HttpStatus.NOT_MODIFIED) :
+                    new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
     //редактирование имени пользователя
-    @RequestMapping(value = "/users/id", method = RequestMethod.PATCH)
-    public void setNameUser(int userId, String name){
-        Storage.getUser(userId).setName(name);
+    @PutMapping("/users/{id}")
+    public ResponseEntity setNameUser(@PathVariable int id, @PathVariable String name) {
+        ResponseEntity responseEntity = get(id);
+        User user = (User) responseEntity.getBody();
+        if (user != null) {
+            user.setName(name);
+            return (user.getName().equals(name)) ? new ResponseEntity(HttpStatus.CREATED) :
+                    new ResponseEntity(HttpStatus.NOT_MODIFIED);
+        }
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
 
-    //создание новой записи в телефонной книжке пользователя
-    @RequestMapping(value = "/users/id/phone_book/", method = RequestMethod.POST)
-    public int addContact(int userId, String phone, String name){
-        return Storage.getUser(userId).addContact(phone, name);
+    // поиск пользователей по имени (или его части)
+    @GetMapping("/users")
+    public ResponseEntity list(@PathVariable String str) {
+        Iterable<User> userIterable = userRepository.findAll();
+        ArrayList<User> list = new ArrayList<>();
+        for (User u : userIterable) {
+            if (u.getName().contains(str)) {
+                list.add(u);
+            }
+        }
+        return !list.isEmpty() ?
+                new ResponseEntity(list, HttpStatus.OK) :
+                new ResponseEntity(HttpStatus.NOT_FOUND);
     }
-
-    //получение записи телефонной книжки пользователя по id
-    @RequestMapping(value = "/users/id/phone_book/", method = RequestMethod.POST)
-    public Map<String, String> contact(int userId, int phoneId){
-        return Storage.getUser(userId).getContact(phoneId);
-    }
-
-    //удаление записи в телефонной книжке пользователя по id
-    @RequestMapping(value = "/users/id", method = RequestMethod.DELETE)
-    public void delbyId(int userId, int phoneId){
-        Storage.getUser(userId).delContact(phoneId);
-    }
-
-    //редактирования имени в записи телефонной книжки пользователя по номеру телефона
-    @RequestMapping(value = "/users/id", method = RequestMethod.DELETE)
-    public void patchNameContact(int userId, String phone){
-        Storage.getUser(userId).delContact(phoneId);
-    }
-    //редактирование номера телефона в телефонной книжке пользователя по имени
-    @RequestMapping(value = "/users/id", method = RequestMethod.DELETE)
-    public void patchNameContact(int userId, String name){
-        Storage.getUser(userId).delContact(phoneId);
-    }
-    //удаление записи в телефонной книжке пользователя по id
-    //получения списка всех записей в телефонной книжке пользователя
-    // поиск пользователей по имени (или его части)*
-    // поиск телефонной записи по номеру телефона
-
 
 }
-*/
+
