@@ -70,7 +70,7 @@ public class UserController {
     }
 
     // поиск пользователей по имени (или его части)
-    @GetMapping("/users")
+    @GetMapping("/users/")
     public ResponseEntity list(@PathVariable String str) {
         Iterable<User> userIterable = userRepository.findAll();
         ArrayList<User> list = new ArrayList<>();

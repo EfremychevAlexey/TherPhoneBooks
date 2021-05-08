@@ -6,10 +6,7 @@ import main.model.PhoneBookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +26,8 @@ public class PhoneBookController {
 
     //добавление записи в телефонную книгу пользователя
     @PostMapping("/books/{id}")
-    public ResponseEntity addContact(int bookId, Contact contact) {
-        Optional<PhoneBook> bookOptional = bookRepository.findById(bookId);
+    public ResponseEntity addContact(@PathVariable int id, Contact contact) {
+        Optional<PhoneBook> bookOptional = bookRepository.findById(id);
         boolean res = false;
         if (bookOptional.isPresent()) {
             res = bookOptional.get().addContact(contact);
@@ -40,9 +37,9 @@ public class PhoneBookController {
     }
 
     //получение записи телефонной книжки пользователя по id
-    @GetMapping("/phone_book/{id}")
-    public ResponseEntity getContact(int bookId, int phoneId) {
-        Optional<PhoneBook> bookOptional = bookRepository.findById(bookId);
+    @GetMapping("/phone_book/{id}/{phoneid}/")
+    public ResponseEntity getContactById(@PathVariable int id, int phoneId) {
+        Optional<PhoneBook> bookOptional = bookRepository.findById(id);
         if (bookOptional.isPresent()) {
             Contact contact = bookOptional.get().getContactById(phoneId);
             return new ResponseEntity(contact,HttpStatus.OK);
@@ -52,8 +49,8 @@ public class PhoneBookController {
 
     //получения списка всех записей в телефонной книжке пользователя
     @GetMapping("/phone_book/{id}")
-    public ResponseEntity getlist(int bookId) {
-        Optional<PhoneBook> bookOptional = bookRepository.findById(bookId);
+    public ResponseEntity getlist(@PathVariable int id) {
+        Optional<PhoneBook> bookOptional = bookRepository.findById(id);
         if (bookOptional.isPresent()) {
             List<Contact> contacts = bookOptional.get().allContacts();
             if (!contacts.isEmpty()) {
@@ -65,8 +62,8 @@ public class PhoneBookController {
 
     //удаление записи в телефонной книжке пользователя по id
     @DeleteMapping("/phone_book/{id}")
-    public ResponseEntity delbyId(int bookId, int phoneId) {
-        Optional<PhoneBook> bookOptional = bookRepository.findById(bookId);
+    public ResponseEntity delbyId(@PathVariable int id, int phoneId) {
+        Optional<PhoneBook> bookOptional = bookRepository.findById(id);
         boolean res = false;
         if (bookOptional.isPresent()) {
             res = bookOptional.get().delContactbyId(phoneId);
@@ -77,9 +74,10 @@ public class PhoneBookController {
     }
 
     //поиск записи по номеру телефон
-    @GetMapping("/phone_book/{id}")
-    public ResponseEntity getContact(int bookId, String str) {
-        Optional<PhoneBook> bookOptional = bookRepository.findById(bookId);
+
+    @GetMapping("/phone_book/{id}/")
+    public ResponseEntity getContactByStr(@PathVariable  int id, String str) {
+        Optional<PhoneBook> bookOptional = bookRepository.findById(id);
         if (bookOptional.isPresent()) {
             List<Contact> contacts = bookOptional.get().
                     allContacts().stream().

@@ -1,43 +1,100 @@
 package main.model;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
+@Table(name = "phone_book")
 public class PhoneBook {
 
+    @Id
+    @Column(name = "phone_book_id")
     private int id;
-    private String name;
-    private User user;
-    private Date dateCreation;
-    private Date lastEntry;
-    private Map<Integer, Contact> contacts;
-    private Map<Integer, Contact> basket;
 
+    @Column(name = "name")
+    private String name;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "date_creation")
+    private Date dateCreation;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "last_entry")
+    private Date lastEntry;
+
+    @OneToMany(mappedBy = "phoneBook", cascade = CascadeType.ALL)
+    private Map<Integer, Contact> contacts;
+    @OneToMany(mappedBy = "phoneBook", cascade = CascadeType.ALL)
+    private Map<Integer, Contact> outdates;
+
+    public PhoneBook() {}
     public PhoneBook(User user){
         this.id = user.getId();
         name = "Owner:" + user.getName();
         this.user = user;
         dateCreation = new Date();
         contacts = new HashMap<>();
-        basket = new HashMap<>();
+        outdates = new HashMap<>();
+    }
+
+
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public User getUser() {
         return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Date getDateCreation() {
         return dateCreation;
     }
+    public void setDateCreation(Date dateCreation) {
+        this.dateCreation = dateCreation;
+    }
+
     public Date getLastEntry(){
         return lastEntry;
     }
+    public void setLastEntry(Date lastEntry) {
+        this.lastEntry = lastEntry;
+    }
+
+    public Map<Integer, Contact> getContacts() {
+        return contacts;
+    }
+    public void setContacts(Map<Integer, Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    public Map<Integer, Contact> getBasket() {
+        return outdates;
+    }
+    public void setBasket(Map<Integer, Contact> outdates) {
+        this.outdates = outdates;
+    }
+
+
+
 
     // добавить новый контакт,
     public boolean addContact(Contact contact){
@@ -64,7 +121,7 @@ public class PhoneBook {
         if(contacts.containsKey(id)){
             Contact contact = contacts.remove(id);
             if(contact != null){
-                basket.put(contact.getId(), contact);
+                outdates.put(contact.getId(), contact);
                 return true;
             }
         }
