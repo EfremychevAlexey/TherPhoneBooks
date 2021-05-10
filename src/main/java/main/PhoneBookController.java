@@ -19,9 +19,9 @@ public class PhoneBookController {
 
     // добавление новой книги
     @PostMapping("/books")
-    public ResponseEntity addBook(PhoneBook book) {
+    public int addBook(PhoneBook book) {
         bookRepository.save(book);
-        return new ResponseEntity(book.getUser().getId(), HttpStatus.CREATED);
+        return book.getId();
     }
 
     //добавление записи в телефонную книгу пользователя
@@ -32,8 +32,8 @@ public class PhoneBookController {
         if (bookOptional.isPresent()) {
             res = bookOptional.get().addContact(contact);
         }
-        return res? new ResponseEntity(HttpStatus.OK):
-                new ResponseEntity(HttpStatus.NOT_MODIFIED);
+        return res ? ResponseEntity.status(HttpStatus.OK).body(null):
+                ResponseEntity.status(HttpStatus.NOT_MODIFIED).body(null);
     }
 
     //получение записи телефонной книжки пользователя по id
@@ -64,11 +64,12 @@ public class PhoneBookController {
     @DeleteMapping("/phone_book/{id}")
     public ResponseEntity delbyId(@PathVariable int id, int phoneId) {
         Optional<PhoneBook> bookOptional = bookRepository.findById(id);
-        boolean res = false;
-        if (bookOptional.isPresent()) {
-            res = bookOptional.get().delContactbyId(phoneId);
+        PhoneBook newBook = bookOptional.get();;
+        if (newBook != null) {
+            newBook.delContactbyId(phoneId);
+            bookRepository.deleteById(id);
         }
-        return res?
+        return bookRepository.save(newBook) != null?
                 new ResponseEntity(HttpStatus.OK):
                 new ResponseEntity(HttpStatus.NOT_FOUND);
     }

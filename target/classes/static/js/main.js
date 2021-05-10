@@ -1,48 +1,48 @@
 $(function(){
 
-    const appendBook = function(data){
-        var bookCode = '<h4>' + data.name + '</h4>';
-        $('#book-list')
-            .append('<div>' + bookCode + '</div>');
+    const appendUser = function(data){
+        var userCode = '<a href="#" class="user-link" data-id="' +
+            data.id + '">' + data.name + '</a><br>';
+        $('#user-list')
+            .append('<div>' + userCode + '</div>');
     };
 
     //Loading books on load page
-
     $.get('/users/', function(response)
     {
         for(i in response) {
-            appendBook(response[i]);
+            appendUsers(response[i]);
         }
     });
 
     //Show adding book form
-    $('#show-add-book-form').click(function(){
-        $('#book-form').css('display', 'flex');
+    $('#show-add-user-form').click(function(){
+        $('#user-form').css('display', 'flex');
     });
 
     //Closing adding book form
-    $('#book-form').click(function(event){
+    $('#user-form').click(function(event){
         if(event.target === this) {
             $(this).css('display', 'none');
         }
     });
 
     //Getting book
-    $(document).on('click', '.book-link', function(){
+    $(document).on('click', '.user-link', function(){
         var link = $(this);
-        var bookId = link.data('id');
+        var userId = $(this).data('id');
         $.ajax({
             method: "GET",
             url: '/users/' + bookId,
             success: function(response)
             {
-                var code = '<span>Год выпуска:' + response.year + '</span>';
+                var code = '<span>Имя пользователя:' + response.name + '</span>';
                 link.parent().append(code);
             },
             error: function(response)
             {
                 if(response.status == 404) {
-                    alert('Книга не найдена!');
+                    alert('Пользователь не найден!');
                 }
             }
         });
@@ -50,23 +50,23 @@ $(function(){
     });
 
     //Adding book
-    $('#save-book').click(function()
+    $('#save-user').click(function()
     {
-        var data = $('#book-form form').serialize();
+        var data = $('#user-form').serialize();
         $.ajax({
             method: "POST",
             url: '/users/',
             data: data,
             success: function(response)
             {
-                $('#book-form').css('display', 'none');
-                var book = {};
-                book.id = response.id;
-                var dataArray = $('#book-form form').serializeArray();
+                $('#user-form').css('display', 'none');
+                var user = {};
+                user.id = response;
+                var dataArray = $('#user-form').serializeArray();
                 for(i in dataArray) {
-                    book[dataArray[i]['name']] = dataArray[i]['value'];
+                    user[dataArray[i]['name']] = dataArray[i]['value'];
                 }
-                appendBook(book);
+                appendUser(user);
             }
         });
         return false;

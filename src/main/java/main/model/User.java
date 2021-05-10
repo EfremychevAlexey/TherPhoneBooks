@@ -16,6 +16,10 @@ public class User {
     private PhoneBook phoneBook;
 
     public User(){}
+    public User(String name){
+        this.name = name;
+        new PhoneBook(this);
+    }
 
     public int getId() {
         return id;

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <script src="/js/jquery-3.4.0.min.js"></script>
+    <script src="/js/main.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+    <div id="user-form">
+        <form>
+            <h2>Добавление пользователя</h2>
+            <label>Имя:</label>
+            <input type="text" name="name" value="">
+            <hr>
+            <button id="save-user">Сохранить</button>
+        </form>
+    </div>
+    <h1>Пользователи (<span th:text="${usersCount}">0</span>)</h1>
+    <button id="show-add-user-form">Добавить книгу</button>
+    <br><br>
+    <div id="user-list">
+        <div th:each="user : ${users}">
+            <a href="#" class="user-link" th:attr="data-id=${user.id}" th:text="${user.name}"></a>
+        </div>
+    </div>
+    <p th:text="${someParameter}"></p>
+</body>
+</html>
